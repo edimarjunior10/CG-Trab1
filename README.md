@@ -1,3 +1,2 @@
-# CG-Trab1
-# CG-Trab1
-# CG-Trab1
+Trabalho 1 de Computação Grafica
+Boneco do Android
