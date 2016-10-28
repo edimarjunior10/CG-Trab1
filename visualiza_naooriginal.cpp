@@ -6,14 +6,13 @@
 GLfloat angle, fAspect;
 GLUquadricObj *obj = gluNewQuadric();
 
-
-void draw_cylinder(GLfloat radius,GLfloat height,GLubyte R,GLubyte G,GLubyte B){
+/*void draw_cylinder(GLfloat radius,GLfloat height,GLubyte R,GLubyte G,GLubyte B){
     GLfloat x              = 0.0;
     GLfloat y              = 0.0;
     GLfloat angle          = 0.0;
     GLfloat angle_stepsize = 0.1;
 
-    /** Draw the tube */
+    / Draw the tube 
     glColor3ub(R-40,G-40,B-40);
     glBegin(GL_QUAD_STRIP);
     angle = 0.0;
@@ -28,7 +27,7 @@ void draw_cylinder(GLfloat radius,GLfloat height,GLubyte R,GLubyte G,GLubyte B){
         glVertex3f(radius, 0.0, 0.0);
     glEnd();
 
-    /** Draw the circle on top of cylinder */
+    /** Draw the circle on top of cylinder *
     glColor3ub(R,G,B);
     glBegin(GL_POLYGON);
     angle = 0.0;
@@ -41,7 +40,57 @@ void draw_cylinder(GLfloat radius,GLfloat height,GLubyte R,GLubyte G,GLubyte B){
         glVertex3f(radius, 0.0, height);
     glEnd();
 }
+*/
 
+//Função que desenha os cilindros chamados da funcao draw
+void draw_cylinder(GLfloat radius,GLfloat height){
+    /** Funcao draw_cylinder original disponivel no git de nikAizuddin
+     * 	A função original está sendo utilizada como base, porém modificamos para que o cilindro 
+     *  nao fique oco e que pudecemos escolher a cor durante a função draw.
+     * */
+    GLfloat x              = 0.0;
+    GLfloat y              = 0.0;
+    GLfloat angle          = 0.0;
+    GLfloat angle_stepsize = 0.1;
+
+    //Desenha o tubo do cilindro
+    glBegin(GL_QUAD_STRIP);
+    angle = 0.0;
+        while( angle < 2*pi ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , height);
+            glVertex3f(x, y , 0.0);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+        glVertex3f(radius, 0.0, 0.0);
+    glEnd();
+
+    //Desenha o circulo no topo do cilindro
+    glBegin(GL_POLYGON);
+    angle = 0.0;
+        while( angle < 2*pi ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , height);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+    glEnd();
+    
+     //Desenha o circulo na base do cilindro
+    glBegin(GL_POLYGON);
+    angle = 0.0;
+        while( angle < 2*pi ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , 0);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+    glEnd();
+}
 
 // Fun��o callback chamada para fazer o desenho
 void Desenha(void)

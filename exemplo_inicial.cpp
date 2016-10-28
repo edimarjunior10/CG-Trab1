@@ -19,7 +19,6 @@ int altTamanhoCubo, moveTela;
 double CuboTamanho;
 GLfloat Tela, Esfera1, Cone1, Cubo1;
 GLdouble p[3] = { 0,0,0 };
-GLfloat alpha = 0.0;
 double matCoresEsfera[5][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 1.0}}; 
 GLfloat v[8][3] = { {-1,-1,-1}, {1,-1,-1}, {1,1,-1}, {-1,1,-1},
 					{1,-1,1}, {-1,-1,1}, {-1,1,1}, {1,1,1}};

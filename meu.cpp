@@ -1,10 +1,9 @@
-/*
- * Universidade Federal da Fronteira Sul - UFFS
- * Disciplina de Computação Gráfica
+/* Universidade Federal da Fronteira Sul - UFFS
+ * Disciplina de Computação Gráfica - 2016/02
  * Professor José Carlos Bins
- * Noturno 2016/02
- * Aluno Edimar Roque Martello Júnior
- * Matricula 1111100038
+ * Alunos 	Edimar Roque Martello Júnior - 1111100038
+ *			Edirlan Cenci - matriculaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ *
  * 
  * 
  * TIRAR OS DEMAIS COMENTARIOS DO CODIGO E REMOVER O CUBO2
@@ -18,8 +17,20 @@ const double pi = 3.1415927;
 int altTamanhoCubo, moveTela; 
 double CuboTamanho;
 GLfloat Tela, Esfera1, Cone1, Cubo1;
+GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
 GLdouble p[3] = { 0,0,0 };
 GLfloat alpha = 0.0;
+GLUquadricObj *obj = gluNewQuadric();
+GLfloat x=0.0;
+GLfloat y=0.0;
+GLfloat angle=0.0;
+GLfloat angle_stepsize=0.1;
+GLfloat radius=0.0;
+GLfloat height=0.0;
+
+
+
+
 double matCoresEsfera[5][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 1.0}}; 
 GLfloat v[8][3] = { {-1,-1,-1}, {1,-1,-1}, {1,1,-1}, {-1,1,-1},
 					{1,-1,1}, {-1,-1,1}, {-1,1,1}, {1,1,1}};
@@ -182,50 +193,6 @@ void cubo() {
 	glEnd();
 }
 
-void draw_cylinder(GLfloat radius,GLfloat height){
-    GLfloat x              = 0.0;
-    GLfloat y              = 0.0;
-    GLfloat angle          = 0.0;
-    GLfloat angle_stepsize = 0.1;
-
-    //Desenha o tubo do cilindro
-    glBegin(GL_QUAD_STRIP);
-    angle = 0.0;
-        while( angle < 2*pi ) {
-            x = radius * cos(angle);
-            y = radius * sin(angle);
-            glVertex3f(x, y , height);
-            glVertex3f(x, y , 0.0);
-            angle = angle + angle_stepsize;
-        }
-        glVertex3f(radius, 0.0, height);
-        glVertex3f(radius, 0.0, 0.0);
-    glEnd();
-
-    //Desenha o circulo no topo do cilindro
-    glBegin(GL_POLYGON);
-    angle = 0.0;
-        while( angle < 2*pi ) {
-            x = radius * cos(angle);
-            y = radius * sin(angle);
-            glVertex3f(x, y , height);
-            angle = angle + angle_stepsize;
-        }
-        glVertex3f(radius, 0.0, height);
-    glEnd();
-    
-     //Desenha o circulo na base do cilindro
-    glBegin(GL_POLYGON);
-    angle = 0.0;
-        while( angle < 2*pi ) {
-            x = radius * cos(angle);
-            y = radius * sin(angle);
-            glVertex3f(x, y , 0);
-            angle = angle + angle_stepsize;
-        }
-        glVertex3f(radius, 0.0, height);
-    glEnd();
-}
 // Função callback chamada para fazer o desenho
 void draw(void) {
 	glMatrixMode(GL_MODELVIEW);
@@ -233,30 +200,89 @@ void draw(void) {
 
 	// Limpa a janela de visualização com cor de fundo especificada
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	// gluLookAt(xC, yC, zC, xP, yP, zP, xU, yU, zU)
+	
 	gluLookAt(0.0, 0.0, Tela, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	//void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,  GLdouble upX,  GLdouble upY,  GLdouble upZ);
+	//posicaoLuz[2]=Tela;
 
 	//PuchMatrix do Boneco
 	glPushMatrix();
+	
 		//Desenhando o tronco principal
 		glColor3f(0.0f, 1.0f, 0.0f);
+		glTranslatef(0.0, -5.0, 0.0);
 		glRotated(Esfera1, 0, 1, 0); //Rotação sobre o eixo y da esfera
 		glRotated(Esfera1 * 2, 1, 0, 0); //Rotação sobre o eixo x da esfera (dobro que em y)
-		draw_cylinder(1.5, 5.0);
+		//glRotatef(-80.0, 1.0, 0.0, 0.0);
+		gluCylinder(obj, 2.0, 2, 5, 50, 50);
+			
+		//Fechar o topo do cilindro
+		glPushMatrix();
+			glBegin(GL_POLYGON);
+				glColor3f(0.0f, 1.0f, 0.0f);
+				radius=2.0;
+				height=5.0;//tem que ser o mesmo do cilindo desenhado anteriormente
+				angle = 0.0;
+				while( angle < 2*pi ) {
+					x = radius * cos(angle);
+					y = radius * sin(angle);
+					glVertex3f(x, y , height);//A posição da tampa
+					angle = angle + angle_stepsize;
+				}
+				glVertex3f(radius, 0.0, height);
+			glEnd();
+		glPopMatrix();
+			
+		//Fechar a base do cilindro
+		glPushMatrix();
+			glColor3f(0.0f, 1.0f, 0.0f);
+			//glTranslatef(0.0, 0.0, 0.3);
+			glutSolidSphere(2.0, 50.0, 50.0);
+		glPopMatrix();
 	
 		//Desenhando o pescoço branco
 		glPushMatrix();
 			glColor3f(1.0f, 1.0f, 1.0f);
-			glTranslatef(0.0, 0.0, 1.5);
-			draw_cylinder(1.2, 4.0);
+			glTranslatef(0.0, 0.0, 3.5);
+			gluCylinder(obj, 1.8, 1.8, 2, 50, 50);
 		glPopMatrix();
 		
+		//Desenhando o braço direito
+		glPushMatrix();
+		
+			//Desenhando a ligação do braço direito
+			glPushMatrix();
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glTranslatef(1.5, 0.0, 4.0);
+				glRotatef(90.0, 0.0, 1.0, 0.0);
+				gluCylinder(obj, 0.3, 0.3, 1, 50, 50);
+			glPopMatrix();
+		
+			//Cilindro do braço
+			glPushMatrix();
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glTranslatef(2.5, 0.0, 2.0);
+				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
+			
+				//Esfera de cima
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 2.5);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+				
+				//Esfera de baixo
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 0.0);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+			glPopMatrix();
+		glPopMatrix(); //Termina o braço direito
 	
 	
 	
 	
-	glPopMatrix();
+	glPopMatrix(); //Termina o Boneco
 
 
 	// Executa os comandos OpenGL
@@ -311,7 +337,7 @@ void init(void) {
 	GLfloat luzAmbiente[4] = { 0.2,0.2,0.2,1.0 };
 	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "cor"
 	GLfloat luzEspecular[4] = { 0.7,0.7,0.7, 1.0 };// "brilho"
-	GLfloat posicaoLuz[4] = { 50.0, 50.0, 50.0, 1.0 };
+	//GLfloat posicaoLuz[4] = { 50.0, Tela, 50.0, 1.0 };
 
 	// Capacidade de brilho do material
 	GLfloat especularidade[4] = { 1.0,1.0,1.0,1.0 };
