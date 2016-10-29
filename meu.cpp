@@ -1,47 +1,48 @@
 /* Universidade Federal da Fronteira Sul - UFFS
  * Disciplina de Computação Gráfica - 2016/02
- * Professor José Carlos Bins
+ * Professor	José Carlos Bins
  * Alunos 	Edimar Roque Martello Júnior - 1111100038
- *			Edirlan Cenci - matriculaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
- *
- * 
- * 
- * TIRAR OS DEMAIS COMENTARIOS DO CODIGO E REMOVER O CUBO2
- * 
+ *			Edirlan José Censi - 1211100030
 */
 #include <stdio.h>
 #include <GL/glut.h>
 #include <math.h>
 
 const double pi = 3.1415927;
-int altTamanhoCubo, moveTela; 
-double CuboTamanho;
+GLUquadricObj *obj = gluNewQuadric();
+GLint dirx = 0;
+GLint diry = 0;
+GLint passox = -35;
+GLint passoy = 0;
 GLfloat Tela, Esfera1, Cone1, Cubo1;
 GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
-GLdouble p[3] = { 0,0,0 };
+GLfloat n = 20;  //esfera cabeça
 GLfloat alpha = 0.0;
-GLUquadricObj *obj = gluNewQuadric();
 GLfloat x=0.0;
 GLfloat y=0.0;
 GLfloat angle=0.0;
 GLfloat angle_stepsize=0.1;
 GLfloat radius=0.0;
 GLfloat height=0.0;
+GLfloat xcubo=3.0;
+GLfloat ycubo=1.3;
+GLfloat zcubo=0.2;
+GLdouble p[3] = { 0,0,0 }; //esfera cabeça
+GLfloat v[8][3] = { {-xcubo,-ycubo,-zcubo}, {xcubo,-ycubo,-zcubo}, //Matriz de vértices para o skate
+					{xcubo,ycubo,-zcubo}, {-xcubo,ycubo,-zcubo}, 
+					{xcubo,-ycubo,zcubo}, {-xcubo,-ycubo,zcubo}, 
+					{-xcubo,ycubo,zcubo}, {xcubo,ycubo,zcubo}};
 
-
-
-
-double matCoresEsfera[5][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 1.0}}; 
-GLfloat v[8][3] = { {-1,-1,-1}, {1,-1,-1}, {1,1,-1}, {-1,1,-1},
-					{1,-1,1}, {-1,-1,1}, {-1,1,1}, {1,1,1}};
-
+//Funcao chamada para desenhar meia esfera, para a cabeca do boneco
 void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
+	glEnable(GL_NORMALIZE); //Habilitando a nomal
 	GLdouble c, c2, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
 	GLdouble phi, theta, phi1, theta1, phi2, theta2;
 	GLdouble senphi1, cosphi1, senphi2, cosphi2,
 	         sentheta1, costheta1, sentheta2, costheta2,
 	         passo;
-	glVertex3d(centro[0], centro[1] + radius, centro[2]);
+	glNormal3d(centro[0], centro[1] + radius, centro[2]); //Calculando a normal
+	glVertex3d(centro[0], centro[1] + radius, centro[2]); //Desenhando os vértices normalizados
 	c = pi / 180;
 	passo = 180 / num * c;
 	glBegin(GL_TRIANGLES);
@@ -49,7 +50,7 @@ void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
 	senphi1 = sin(phi1);
 	cosphi1 = cos(phi1);
 	int i,j,k;
-	for (i=0; i < num; i++) {
+	for (i=0; i < num/2; i++) { //Desenhando meia esfera
 		phi2 = phi1 + passo;
 		senphi2 = sin(phi2);
 		cosphi2 = cos(phi2);
@@ -58,31 +59,37 @@ void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
 		costheta1 = cos(theta1);
 		k = 0;
 		for (j = 0; j < 2 * num; j++) {
-			if (j % 8 == 0) {
-				glColor3f(matCoresEsfera[k][0], matCoresEsfera[k][1], matCoresEsfera[k][2]);
-				k++;
-			}
+			
+			//glColor3f(0.0, 1.0, 0.0); //Sem cor específica, voce pode escolher a cor do objeto na main
 			theta2 = theta1 + passo;
-			sentheta2 = sin(theta2);
+			sentheta2 = sin(theta2); 
 			costheta2 = cos(theta2);
 			x1 = centro[0] + radius * senphi1 * costheta1;
 			y1 = centro[1] + radius * senphi1 * sentheta1;
 			z1 = centro[2] + radius * cosphi1;
-			glVertex3d(x1, y1, z1);
+			glNormal3d(x1, y1, z1); //Calculando a normal
+			glVertex3d(x1, y1, z1); //Desenhando os vértices normalizados
 			x2 = centro[0] + radius * senphi2 * costheta1;
 			y2 = centro[1] + radius * senphi2 * sentheta1;
 			z2 = centro[2] + radius * cosphi2;
-			glVertex3d(x2, y2, z2);
+			glNormal3d(x2, y2, z2); //Calculando a normal
+			glVertex3d(x2, y2, z2); //Desenhando os vértices normalizados
 			x3 = centro[0] + radius * senphi2 * costheta2;
 			y3 = centro[1] + radius * senphi2 * sentheta2;
 			z3 = centro[2] + radius * cosphi2;
-			glVertex3d(x3, y3, z3);
-			glVertex3d(x1, y1, z1);
+			glNormal3d(x3, y3, z3); //Calculando a normal
+			glVertex3d(x3, y3, z3); //Desenhando os vértices normalizados
+			
+			glNormal3d(x1, y1, z1); //Calculando a normal
+			glVertex3d(x1, y1, z1); //Desenhando os vértices normalizados
+			
+			glNormal3d(x3, y3, z3); //Calculando a normal
 			glVertex3d(x3, y3, z3);
 			x4 = centro[0] + radius * senphi1 * costheta2;
 			y4 = centro[1] + radius * senphi1 * sentheta2;
 			z4 = centro[2] + radius * cosphi1;
-			glVertex3d(x4, y4, z4);
+			glNormal3d(x4, y4, z4); //Calculando a normal
+			glVertex3d(x4, y4, z4); //Desenhando os vértices normalizados
 			theta1 = theta2;
 			sentheta1 = sentheta2;
 			costheta1 = costheta2;
@@ -92,126 +99,108 @@ void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
 		cosphi1 = cosphi2;
 	}
 	glEnd();
+	glDisable(GL_NORMALIZE);
 }
 
-void cubo2(double tam, double x, double y, double z) {
-  // Lado branco - TRASEIRA
-  glBegin(GL_POLYGON);
-  glColor3f(   1.0,  1.0, 1.0 );
-  glVertex3f( x + tam, y - tam, z + tam );
-  glVertex3f( x + tam, y + tam, z + tam );
-  glVertex3f( x - tam, y + tam, z + tam );
-  glVertex3f( x - tam, y - tam, z + tam );
-  glEnd();
-
-  // Lado roxo - DIREITA
-  glBegin(GL_POLYGON);
-  glColor3f(  1.0,  0.0,  1.0 );
-  glVertex3f( x + tam, y - tam, z - tam );
-  glVertex3f( x + tam, y + tam, z - tam );
-  glVertex3f( x + tam, y + tam, z + tam );
-  glVertex3f( x + tam, y - tam, z + tam );
-  glEnd();
-
-  // Lado verde - ESQUERDA
-  glBegin(GL_POLYGON);
-  glColor3f(   0.0,  1.0,  0.0 );
-  glVertex3f( x - tam, y - tam, z + tam );
-  glVertex3f( x - tam, y + tam, z + tam );
-  glVertex3f( x - tam, y + tam, z - tam );
-  glVertex3f( x - tam, y - tam, z - tam );
-  glEnd();
-
-  // Lado azul - TOPO
-  glBegin(GL_POLYGON);
-  glColor3f(   0.0,  0.0,  1.0 );
-  glVertex3f( x + tam, y + tam, z + tam );
-  glVertex3f( x + tam, y + tam, z - tam );
-  glVertex3f( x - tam, y + tam, z - tam );
-  glVertex3f( x - tam, y + tam, z + tam );
-  glEnd();
-
-  // Lado vermelho - BASE
-  glBegin(GL_POLYGON);
-  glColor3f(   1.0,  0.0,  0.0 );
-  glVertex3f( x + tam, y - tam, z - tam );
-  glVertex3f( x + tam, y - tam, z + tam );
-  glVertex3f( x - tam, y - tam, z + tam );
-  glVertex3f( x - tam, y - tam, z - tam );
-  glEnd();
-
-  //Lado laranja - Frente
-  glBegin(GL_POLYGON);
-  glColor3f( 1.0, 0.647, 0.0);
-  glVertex3f( x + tam, y - tam, z - tam );
-  glVertex3f( x + tam, y + tam, z - tam );
-  glVertex3f( x - tam, y + tam, z - tam );
-  glVertex3f( x - tam, y - tam, z - tam );
-  glEnd();
-
-}
-
+//Funcao chamada para desenhar um cubo que sera o shape do skate
 void cubo() {
+	glEnable(GL_NORMALIZE); //Habilitando a nomal
 	glBegin(GL_QUADS);
 
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3fv(v[0]); //frente
+	//frente
+	glNormal3fv(v[0]); 
+	glVertex3fv(v[0]); 
+	
+	glNormal3fv(v[1]);
 	glVertex3fv(v[1]);
+	
+	glNormal3fv(v[2]);
 	glVertex3fv(v[2]);
+	
+	glNormal3fv(v[3]);
 	glVertex3fv(v[3]);
 
-	glColor3f(0.0f, 01.0f, 0.0f);
-	glVertex3fv(v[4]); // fundos
-	glVertex3fv(v[5]);
-	glVertex3fv(v[6]);
-	glVertex3fv(v[7]);
-
-	glColor3f(0.0f, 1.0f, 0.5f);
-	glVertex3fv(v[0]); // esq
-	glVertex3fv(v[3]);
-	glVertex3fv(v[6]);
-	glVertex3fv(v[5]);
-
-	glColor3f(1.0f, 1.0f, 0.5f);
-	glVertex3fv(v[3]); // topo
-	glVertex3fv(v[2]);
-	glVertex3fv(v[7]);
-	glVertex3fv(v[6]);
-
-	glColor3f(1.0f, 0.5f, 0.0f);
-	glVertex3fv(v[1]); // dir
+	//fundos
+	glNormal3fv(v[4]);
 	glVertex3fv(v[4]);
+	
+	glNormal3fv(v[5]);
+	glVertex3fv(v[5]);
+	
+	glNormal3fv(v[6]);
+	glVertex3fv(v[6]);
+	
+	glNormal3fv(v[7]);
 	glVertex3fv(v[7]);
+
+	//esquerda
+	glNormal3fv(v[0]);
+	glVertex3fv(v[0]);
+	
+	glNormal3fv(v[3]);
+	glVertex3fv(v[3]);
+	
+	glNormal3fv(v[6]);
+	glVertex3fv(v[6]);
+	
+	glNormal3fv(v[5]);
+	glVertex3fv(v[5]);
+
+	//topo
+	glNormal3fv(v[3]);
+	glVertex3fv(v[3]);
+	
+	glNormal3fv(v[2]);
+	glVertex3fv(v[2]);
+	
+	glNormal3fv(v[7]);
+	glVertex3fv(v[7]);
+	
+	glNormal3fv(v[6]);
+	glVertex3fv(v[6]);
+
+	//direita
+	glNormal3fv(v[1]);
+	glVertex3fv(v[1]);
+	
+	glNormal3fv(v[4]);
+	glVertex3fv(v[4]);
+	
+	glNormal3fv(v[7]);
+	glVertex3fv(v[7]);
+	
+	glNormal3fv(v[2]);
 	glVertex3fv(v[2]);
 
-	glColor3f(1.0f, 0.5f, 0.5f);
-	glVertex3fv(v[1]); // base
+	//base
+	glNormal3fv(v[1]);
+	glVertex3fv(v[1]);
+	
+	glNormal3fv(v[0]);
 	glVertex3fv(v[0]);
+	
+	glNormal3fv(v[5]);
 	glVertex3fv(v[5]);
+	
+	glNormal3fv(v[4]);
 	glVertex3fv(v[4]);
 
 	glEnd();
+	glDisable(GL_NORMALIZE);
 }
 
-// Função callback chamada para fazer o desenho
-void draw(void) {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// Limpa a janela de visualização com cor de fundo especificada
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+//Funcao chamada para desenhar um boneco Android
+void draw_Android(){
 	
-	gluLookAt(0.0, 0.0, Tela, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	//posicaoLuz[2]=Tela;
-
 	//PuchMatrix do Boneco
 	glPushMatrix();
-	
+
 		//Desenhando o tronco principal
 		glColor3f(0.0f, 1.0f, 0.0f);
-		glTranslatef(0.0, -5.0, 0.0);
-		glRotated(Esfera1, 0, 1, 0); //Rotação sobre o eixo y da esfera
-		glRotated(Esfera1 * 2, 1, 0, 0); //Rotação sobre o eixo x da esfera (dobro que em y)
+		glTranslatef(0.0, -3.0, 0.0);
+//mudei		glRotated(Esfera1, 0, 1, 0); //Rotação sobre o eixo y da esfera
+		glRotated(-90, 1, 0, 0); //Rotação sobre o eixo x do boneco deixando ele de pé
+//mudei		glRotated(Esfera1 * 2, 1, 0, 0); //Rotação sobre o eixo x da esfera (dobro que em y)
 		//glRotatef(-80.0, 1.0, 0.0, 0.0);
 		gluCylinder(obj, 2.0, 2, 5, 50, 50);
 			
@@ -235,7 +224,7 @@ void draw(void) {
 		//Fechar a base do cilindro
 		glPushMatrix();
 			glColor3f(0.0f, 1.0f, 0.0f);
-			//glTranslatef(0.0, 0.0, 0.3);
+			glTranslatef(0.0, 0.0, 0.3);
 			glutSolidSphere(2.0, 50.0, 50.0);
 		glPopMatrix();
 	
@@ -243,12 +232,12 @@ void draw(void) {
 		glPushMatrix();
 			glColor3f(1.0f, 1.0f, 1.0f);
 			glTranslatef(0.0, 0.0, 3.5);
+			//glTranslatef(0.0, 0.0, 4.5);
 			gluCylinder(obj, 1.8, 1.8, 2, 50, 50);
 		glPopMatrix();
 		
 		//Desenhando o braço direito
 		glPushMatrix();
-		
 			//Desenhando a ligação do braço direito
 			glPushMatrix();
 				glColor3f(1.0f, 1.0f, 1.0f);
@@ -261,6 +250,38 @@ void draw(void) {
 			glPushMatrix();
 				glColor3f(0.0f, 1.0f, 0.0f);
 				glTranslatef(2.5, 0.0, 2.0);
+				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
+
+				//Esfera de cima
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 2.5);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+				
+				//Esfera de baixo
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 0.0);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+			glPopMatrix();//termina o Cilindro do braço
+		glPopMatrix(); //Termina o braço direito
+	
+		//Desenhando o braço esquerdo
+		glPushMatrix();
+			//Desenhando a ligação do braço esquerdo
+			glPushMatrix();
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glTranslatef(-2.5, 0.0, 4.0); //só coloquei negativo o x
+				glRotatef(90.0, 0.0, 1.0, 0.0);
+				gluCylinder(obj, 0.3, 0.3, 1, 50, 50);
+			glPopMatrix();
+		
+			//Cilindro do braço
+			glPushMatrix();
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glTranslatef(-2.5, 0.0, 2.0); //só coloquei negativo o x
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 			
 				//Esfera de cima
@@ -277,62 +298,222 @@ void draw(void) {
 					glutSolidSphere(0.4, 50.0, 50.0);
 				glPopMatrix();
 			glPopMatrix();
-		glPopMatrix(); //Termina o braço direito
-	
-	
-	
-	
-	glPopMatrix(); //Termina o Boneco
+		glPopMatrix(); //Termina o braço esquerdo
 
+		//Desenhando a perna esquerda
+		glPushMatrix();
+			//Cilindro da perna
+			glPushMatrix();
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glTranslatef(-0.7, -0.5, -0.5); 
+				glRotatef(-180.0, 1.0, 0.0, 0.0);
+				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
+			
+				//Esfera de cima
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 2.5);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+				
+				//Esfera de baixo
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 0.0);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+			glPopMatrix();
+		glPopMatrix(); //Termina a perna esquerda
+
+		//Desenhando a perna direita
+		glPushMatrix();
+			//Cilindro da perna
+			glPushMatrix();
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glTranslatef(0.7, -0.5, -0.5); 
+				glRotatef(-180.0, 1.0, 0.0, 0.0);
+				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
+			
+				//Esfera de cima
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 2.5);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+				
+				//Esfera de baixo
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 0.0);
+					glutSolidSphere(0.4, 50.0, 50.0);
+				glPopMatrix();
+			glPopMatrix();
+		glPopMatrix(); //Termina a perna direita
+	
+		//Desenhar cabeça
+		glPushMatrix();
+			glTranslatef(0.0, 0.0, 5.5);
+			esfera(p, 2.0, 20);
+		glPopMatrix();
+		
+		//Desenhando o olho esquerdo
+		glPushMatrix();
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glTranslatef(0.6, -1.3, 6.7);
+			glutSolidSphere(0.25, 50.0, 50.0);
+		glPopMatrix();
+		
+		//Desenhando o olho direito
+		glPushMatrix();	
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glTranslatef(-0.6, -1.3 , 6.7);
+			glutSolidSphere(0.25, 50.0, 50.0);
+		glPopMatrix();
+		
+		//Desenhando as antenas
+		glPushMatrix(); 
+			//Desenhando a antena esquerda
+			glPushMatrix(); 
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glTranslatef(-1.0, 0.0, 7.0); 
+				glRotatef(-25.0, 0.0, 1.0, 0.0);
+				gluCylinder(obj, 0.1, 0.1, 1, 50, 50);
+
+				//Esfera de baixo
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 1.0);
+					glutSolidSphere(0.1, 50.0, 50.0);
+				glPopMatrix();
+			glPopMatrix();
+			
+			//Desenhando a antena direita
+			glPushMatrix(); 
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glTranslatef(1.0, 0.0, 7.0); 
+				glRotatef(25.0, 0.0, 1.0, 0.0);
+				gluCylinder(obj, 0.1, 0.1, 1, 50, 50);
+
+				//Esfera de baixo
+				glPushMatrix();
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 1.0);
+					glutSolidSphere(0.1, 50.0, 50.0);
+				glPopMatrix();
+			glPopMatrix();
+		glPopMatrix();
+		
+		//Desenhando o Skate
+		glPushMatrix();
+			//Shape
+			glPushMatrix();
+				glColor3f(0.1f, 0.1f, 0.1f);
+				glTranslatef(0.0, 0.0, -3.4);
+				cubo();
+			
+				//Rodinha 1
+				glPushMatrix();
+					//glColor3f(0.1f, 0.1f, 0.1f);
+					glColor3f(1.0f, 0.1f, 0.1f);
+					glTranslatef(-2.5, 0.7, -0.5);
+					glutSolidSphere(0.25, 50.0, 50.0);
+				glPopMatrix();
+				
+				//Rodinha 2
+				glPushMatrix();
+					//glColor3f(0.1f, 0.1f, 0.1f);
+					glColor3f(1.0f, 0.1f, 0.1f);
+					glTranslatef(-2.5, -0.7, -0.5);
+					glutSolidSphere(0.25, 50.0, 50.0);
+				glPopMatrix();
+				
+				//Rodinha 3
+				glPushMatrix();
+					//glColor3f(0.1f, 0.1f, 0.1f);
+					glColor3f(1.0f, 0.1f, 0.1f);
+					glTranslatef(2.5, 0.7, -0.5);
+					glutSolidSphere(0.25, 50.0, 50.0);				
+				glPopMatrix();
+				
+				//Rodinha 4
+				glPushMatrix();
+					glColor3f(1.0f, 0.1f, 0.1f);
+					glTranslatef(2.5, -0.7, -0.5);
+					glutSolidSphere(0.25, 50.0, 50.0);			
+				glPopMatrix();
+			glPopMatrix();
+			
+		glPopMatrix();//Termina o Skate
+
+		
+		
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glPopMatrix(); //Termina o Boneco	
+	
+	
+}
+
+// Funcao callback chamada para fazer o desenho
+void draw(void) {
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	// Limpa a janela de visualização com cor de fundo especificada
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	
+	gluLookAt(0.0, 0.0, Tela, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	//posicaoLuz[2]=Tela;
+	
+	//Globo da morte
+	glPushMatrix();
+		glColor3f(1.0f, 0.0f, 0.0f);
+		//glRotatef(90.0, 0.0, 1.0, 0.0);
+		glutWireSphere(37, 50.0, 50.0);
+	glPopMatrix();
+	
+	//Desenhando o boneco Android
+	glPushMatrix();
+		if (passox >= 35) {
+			dirx = dirx == 0 ? 1 : 0;
+			passox = -35;
+		}
+		passox++;
+		if (passoy >= -35) {
+			diry = diry == 0 ? 1 : 0;
+			passoy = 0;
+		}
+		passoy--;
+		if (dirx == 0)
+			glTranslatef(passox,0,0);
+		else
+			glTranslatef(35-passox-35,0,0);
+		draw_Android();
+	glPopMatrix();
+	
+	/*
+	//Desenhando outro boneco Android 
+	glPushMatrix();
+		glTranslatef(4.0, 0.0, 0.0);
+		draw_Android();
+	glPopMatrix();
+	*/
 
 	// Executa os comandos OpenGL
 	glutSwapBuffers();
 	glFinish();
 }
 
-void idle() {
-		
-	/*if (altTamanhoCubo && CuboTamanho + 0.01 > 3){ 
-		altTamanhoCubo = 0;
-	}
-	else if (altTamanhoCubo){ 
-		CuboTamanho += 0.01;
-	}
-	if (!altTamanhoCubo && CuboTamanho - 0.01 < 1){ 
-		altTamanhoCubo = 1;
-	}
-	else if (!altTamanhoCubo){
-		CuboTamanho -= 0.01;
-	}*/
+void redraw(int)
+{
+    glutPostRedisplay();
+    draw();
+    glutTimerFunc(40,redraw,1);
 
-	Cone1 += 0.5;
-	Cubo1 += 0.5;
-	Esfera1 += 0.5;
-	
-	if (moveTela && Tela + 0.2 > 50){ 
-		moveTela = 0;
-	}
-	else if (moveTela){
-		Tela += 0.2;
-	}
-	if (!moveTela && Tela - 0.2 < 20){
-		moveTela = 1;
-	}
-	else if (!moveTela){
-		Tela -= 0.2;
-	}
-	
-	glutPostRedisplay();
 }
 
 void init(void) {
-	Cone1 = 0; 
-	Cubo1 = 0; 
-	Esfera1 = 0; 
-	CuboTamanho = 1; 
-	altTamanhoCubo = 0; 
-	Tela = 20; 
-	moveTela = 1;
+	Esfera1 = 0;  
+	Tela = 100; //distancia da camera 
 	
 	GLfloat luzAmbiente[4] = { 0.2,0.2,0.2,1.0 };
 	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "cor"
@@ -400,11 +581,11 @@ int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	// GLUT_DEPTH para alocar Z-buffer
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800, 600);
+	glutInitWindowSize(1000, 600);
 	//glutInitWindowPosition(50, 50);
 	glutCreateWindow("Trabalho 1 - Boneco Android");
 	init();
-	glutIdleFunc(idle);
+	glutTimerFunc(40,redraw,1);
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
 	glutMainLoop();
