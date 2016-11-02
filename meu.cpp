@@ -290,12 +290,12 @@ void draw_Android(){
 				glColor3f(0.0f, 1.0f, 0.0f);
 				glTranslatef(-2.5, 0.0, 4.0); 
 				
-				//gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-				//if(MovDir==1){
+				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
+				if(MovDir==1){
 					glRotatef(alpha2+=1.5, -1.0, 0.0, 0.0);		//Faz o movimento do braço
 					//gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 					gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-				//}
+				}
 				//Esfera de cima
 				glPushMatrix();
 					glColor3f(0.0f, 1.0f, 0.0f);
