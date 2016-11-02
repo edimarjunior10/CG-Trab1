@@ -10,11 +10,6 @@
 
 const double pi = 3.1415927;
 GLUquadricObj *obj = gluNewQuadric();
-GLint dir = 0;
-GLint passo = 0;
-GLint okay = 0;
-GLint MovDir=0;  
-
 GLint dirx = 0;
 GLint diry = 0;
 GLint passox = -35;
@@ -23,10 +18,6 @@ GLfloat Tela, Esfera1, Cone1, Cubo1;
 GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
 GLfloat n = 20;  //esfera cabeça
 GLfloat alpha = 0.0;
-GLfloat alpha2 = 0.0;
-
-GLfloat betha = 0.0;
-
 GLfloat x=0.0;
 GLfloat y=0.0;
 GLfloat angle=0.0;
@@ -41,7 +32,6 @@ GLfloat v[8][3] = { {-xcubo,-ycubo,-zcubo}, {xcubo,-ycubo,-zcubo}, //Matriz de v
 					{xcubo,ycubo,-zcubo}, {-xcubo,ycubo,-zcubo}, 
 					{xcubo,-ycubo,zcubo}, {-xcubo,-ycubo,zcubo}, 
 					{-xcubo,ycubo,zcubo}, {xcubo,ycubo,zcubo}};
-
 
 //Funcao chamada para desenhar meia esfera, para a cabeca do boneco
 void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
@@ -114,7 +104,7 @@ void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
 
 //Funcao chamada para desenhar um cubo que sera o shape do skate
 void cubo() {
-	glEnable(GL_NORMALIZE); //Habilitando a normal
+	glEnable(GL_NORMALIZE); //Habilitando a nomal
 	glBegin(GL_QUADS);
 
 	//frente
@@ -208,7 +198,10 @@ void draw_Android(){
 		//Desenhando o tronco principal
 		glColor3f(0.0f, 1.0f, 0.0f);
 		glTranslatef(0.0, -3.0, 0.0);
+//mudei		glRotated(Esfera1, 0, 1, 0); //Rotação sobre o eixo y da esfera
 		glRotated(-90, 1, 0, 0); //Rotação sobre o eixo x do boneco deixando ele de pé
+//mudei		glRotated(Esfera1 * 2, 1, 0, 0); //Rotação sobre o eixo x da esfera (dobro que em y)
+		//glRotatef(-80.0, 1.0, 0.0, 0.0);
 		gluCylinder(obj, 2.0, 2, 5, 50, 50);
 			
 		//Fechar o topo do cilindro
@@ -280,7 +273,7 @@ void draw_Android(){
 			//Desenhando a ligação do braço esquerdo
 			glPushMatrix();
 				glColor3f(1.0f, 1.0f, 1.0f);
-				glTranslatef(-2.5, 0.0, 4.0); 
+				glTranslatef(-2.5, 0.0, 4.0); //só coloquei negativo o x
 				glRotatef(90.0, 0.0, 1.0, 0.0);
 				gluCylinder(obj, 0.3, 0.3, 1, 50, 50);
 			glPopMatrix();
@@ -288,14 +281,9 @@ void draw_Android(){
 			//Cilindro do braço
 			glPushMatrix();
 				glColor3f(0.0f, 1.0f, 0.0f);
-				glTranslatef(-2.5, 0.0, 4.0); 
-				
-				//gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-				//if(MovDir==1){
-					glRotatef(alpha2+=1.5, -1.0, 0.0, 0.0);		//Faz o movimento do braço
-					//gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-					gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-				//}
+				glTranslatef(-2.5, 0.0, 2.0); //só coloquei negativo o x
+				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
+			
 				//Esfera de cima
 				glPushMatrix();
 					glColor3f(0.0f, 1.0f, 0.0f);
@@ -304,8 +292,9 @@ void draw_Android(){
 				glPopMatrix();
 				
 				//Esfera de baixo
-			    glPushMatrix();
+				glPushMatrix();
 					glColor3f(0.0f, 1.0f, 0.0f);
+					glTranslatef(0.0, 0.0, 0.0);
 					glutSolidSphere(0.4, 50.0, 50.0);
 				glPopMatrix();
 			glPopMatrix();
@@ -454,7 +443,6 @@ void draw_Android(){
 				glPopMatrix();
 			glPopMatrix();
 			
-			
 		glPopMatrix();//Termina o Skate
 
 		
@@ -476,25 +464,39 @@ void draw(void) {
 	gluLookAt(0.0, 0.0, Tela, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	//posicaoLuz[2]=Tela;
 	
-	
-	//Desenhando o boneco Android
-	glPushMatrix();		
-		
-		if( alpha <= 10.0 && okay == 0){
-			MovDir=0;
-			glTranslatef(alpha+=0.15, 0.0,0.0);
-			glRotatef(betha+=0.2, 0.0,1.0,0.0);
-		}else{
-		  okay=1;
-		  glTranslatef(alpha-=0.15, 0.0,0.0);
-		  glRotatef(betha-=0.2, 0.0,1.0,0.0);
-		  if(alpha <= -10.0 ) okay=0; MovDir= 1;
-		}
-		draw_Android();
-		
+	//Globo da morte
+	glPushMatrix();
+		glColor3f(1.0f, 0.0f, 0.0f);
+		//glRotatef(90.0, 0.0, 1.0, 0.0);
+		glutWireSphere(37, 50.0, 50.0);
 	glPopMatrix();
 	
+	//Desenhando o boneco Android
+	glPushMatrix();
+		if (passox >= 35) {
+			dirx = dirx == 0 ? 1 : 0;
+			passox = -35;
+		}
+		passox++;
+		if (passoy >= -35) {
+			diry = diry == 0 ? 1 : 0;
+			passoy = 0;
+		}
+		passoy--;
+		if (dirx == 0)
+			glTranslatef(passox,0,0);
+		else
+			glTranslatef(35-passox-35,0,0);
+		draw_Android();
+	glPopMatrix();
 	
+	/*
+	//Desenhando outro boneco Android 
+	glPushMatrix();
+		glTranslatef(4.0, 0.0, 0.0);
+		draw_Android();
+	glPopMatrix();
+	*/
 
 	// Executa os comandos OpenGL
 	glutSwapBuffers();
@@ -511,7 +513,7 @@ void redraw(int)
 
 void init(void) {
 	Esfera1 = 0;  
-	Tela = 50; //distancia da camera 
+	Tela = 100; //distancia da camera 
 	
 	GLfloat luzAmbiente[4] = { 0.2,0.2,0.2,1.0 };
 	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "cor"
@@ -586,6 +588,5 @@ int main(int argc, char **argv) {
 	glutTimerFunc(40,redraw,1);
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
-
 	glutMainLoop();
 }
