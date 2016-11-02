@@ -13,7 +13,7 @@ GLUquadricObj *obj = gluNewQuadric();
 GLint dir = 0;
 GLint passo = 0;
 GLint okay = 0;
-GLint MovDir=0;  
+GLint okay2= 0;  
 
 GLint dirx = 0;
 GLint diry = 0;
@@ -24,6 +24,10 @@ GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
 GLfloat n = 20;  //esfera cabeça
 GLfloat alpha = 0.0;
 GLfloat alpha2 = 0.0;
+GLfloat alpha3 = 0.0;
+GLfloat alphaRodas = 0.0;
+GLfloat alphaHead = 0.0;
+
 
 GLfloat betha = 0.0;
 
@@ -256,7 +260,8 @@ void draw_Android(){
 			//Cilindro do braço
 			glPushMatrix();
 				glColor3f(0.0f, 1.0f, 0.0f);
-				glTranslatef(2.5, 0.0, 2.0);
+				glTranslatef(2.5, 0.0, 4.0); 
+				glRotatef(alpha3-=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 
 				//Esfera de cima
@@ -290,17 +295,17 @@ void draw_Android(){
 				glColor3f(0.0f, 1.0f, 0.0f);
 				glTranslatef(-2.5, 0.0, 4.0); 
 				
+				glRotatef(-180, -1.0, 0.0, 0.0);		//Faz o movimento do braço
+				glRotatef(alpha2+=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-				if(MovDir==1){
-					glRotatef(alpha2+=1.5, -1.0, 0.0, 0.0);		//Faz o movimento do braço
-					//gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-					gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
-				}
+			
+		
 				//Esfera de cima
 				glPushMatrix();
 					glColor3f(0.0f, 1.0f, 0.0f);
 					glTranslatef(0.0, 0.0, 2.5);
 					glutSolidSphere(0.4, 50.0, 50.0);
+					
 				glPopMatrix();
 				
 				//Esfera de baixo
@@ -364,29 +369,36 @@ void draw_Android(){
 		//Desenhar cabeça
 		glPushMatrix();
 			glTranslatef(0.0, 0.0, 5.5);
-			esfera(p, 2.0, 20);
-		glPopMatrix();
+			//glRotatef(alphaHead+=1.5, 0.0, 0.0, 1.0);
 		
-		//Desenhando o olho esquerdo
-		glPushMatrix();
-			glColor3f(1.0f, 1.0f, 1.0f);
-			glTranslatef(0.6, -1.3, 6.7);
-			glutSolidSphere(0.25, 50.0, 50.0);
-		glPopMatrix();
-		
-		//Desenhando o olho direito
-		glPushMatrix();	
-			glColor3f(1.0f, 1.0f, 1.0f);
-			glTranslatef(-0.6, -1.3 , 6.7);
-			glutSolidSphere(0.25, 50.0, 50.0);
-		glPopMatrix();
+		esfera(p, 2.0, 20);	
+		if( alphaHead <= 10.0 && okay2 == 0){
+			glRotatef(alphaHead+=0.5, 0.0, 0.0, 1.0);
+		}else{
+		  okay2=1;
+		  glRotatef(alphaHead-=0.5, 0.0, 0.0, 1.0);
+		  if(alphaHead <= -10.0 ) okay2=0;
+		}
+			//Desenhando o olho esquerdo
+			glPushMatrix();
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glTranslatef(0.6, -1.3, 1.2);
+				glutSolidSphere(0.25, 50.0, 50.0);
+			glPopMatrix();
+			
+			//Desenhando o olho direito
+			glPushMatrix();	
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glTranslatef(-0.6, -1.3 , 1.2);
+				glutSolidSphere(0.25, 50.0, 50.0);
+			glPopMatrix();
 		
 		//Desenhando as antenas
 		glPushMatrix(); 
 			//Desenhando a antena esquerda
 			glPushMatrix(); 
 				glColor3f(0.0f, 1.0f, 0.0f);
-				glTranslatef(-1.0, 0.0, 7.0); 
+				glTranslatef(-1.0, 0.0, 1.5); 
 				glRotatef(-25.0, 0.0, 1.0, 0.0);
 				gluCylinder(obj, 0.1, 0.1, 1, 50, 50);
 
@@ -401,7 +413,7 @@ void draw_Android(){
 			//Desenhando a antena direita
 			glPushMatrix(); 
 				glColor3f(0.0f, 1.0f, 0.0f);
-				glTranslatef(1.0, 0.0, 7.0); 
+				glTranslatef(1.0, 0.0, 1.5); 
 				glRotatef(25.0, 0.0, 1.0, 0.0);
 				gluCylinder(obj, 0.1, 0.1, 1, 50, 50);
 
@@ -412,8 +424,8 @@ void draw_Android(){
 					glutSolidSphere(0.1, 50.0, 50.0);
 				glPopMatrix();
 			glPopMatrix();
+		 glPopMatrix();
 		glPopMatrix();
-		
 		//Desenhando o Skate
 		glPushMatrix();
 			//Shape
@@ -427,6 +439,7 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(-2.5, 0.7, -0.5);
+					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
 					glutSolidSphere(0.25, 50.0, 50.0);
 				glPopMatrix();
 				
@@ -435,6 +448,7 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(-2.5, -0.7, -0.5);
+					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
 					glutSolidSphere(0.25, 50.0, 50.0);
 				glPopMatrix();
 				
@@ -443,6 +457,7 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(2.5, 0.7, -0.5);
+					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
 					glutSolidSphere(0.25, 50.0, 50.0);				
 				glPopMatrix();
 				
@@ -450,6 +465,7 @@ void draw_Android(){
 				glPushMatrix();
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(2.5, -0.7, -0.5);
+					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
 					glutSolidSphere(0.25, 50.0, 50.0);			
 				glPopMatrix();
 			glPopMatrix();
@@ -481,14 +497,13 @@ void draw(void) {
 	glPushMatrix();		
 		
 		if( alpha <= 10.0 && okay == 0){
-			MovDir=0;
 			glTranslatef(alpha+=0.15, 0.0,0.0);
 			glRotatef(betha+=0.2, 0.0,1.0,0.0);
 		}else{
 		  okay=1;
 		  glTranslatef(alpha-=0.15, 0.0,0.0);
 		  glRotatef(betha-=0.2, 0.0,1.0,0.0);
-		  if(alpha <= -10.0 ) okay=0; MovDir= 1;
+		  if(alpha <= -10.0 ) okay=0;
 		}
 		draw_Android();
 		
@@ -511,7 +526,7 @@ void redraw(int)
 
 void init(void) {
 	Esfera1 = 0;  
-	Tela = 50; //distancia da camera 
+	Tela = 30; //distancia da camera 
 	
 	GLfloat luzAmbiente[4] = { 0.2,0.2,0.2,1.0 };
 	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "cor"
