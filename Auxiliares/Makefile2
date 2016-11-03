@@ -1,0 +1,8 @@
+bmp: bmp.cpp
+	g++ -c -g bmp.cpp -lGL -lGLU -lglut
+
+BCommandLine: BCommandLine.cpp
+	g++ -c -g BCommandLine.cpp -lGL -lGLU -lglut
+
+meu: meu.cpp
+	g++ -g meu.cpp -lGL -lGLU -lglut -o meu BCommandLine.o bmp.o

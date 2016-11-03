@@ -10,15 +10,10 @@
 #include "BCommandLine.h"
 
 #define MAXTEXTURES 1
-#define MAP_DEFAULT 2
-#define MAP_AUTO 1
-#define MAP_MANUAL 2
-#define OBJ_DEFAULT 2
-#define OBJ_ESFERA 1
-#define OBJ_CUBO 2
 
 const double pi = 3.1415927;
 GLUquadricObj *obj = gluNewQuadric();
+GLint Pause = 0;
 GLint dir = 0;
 GLint passo = 0;
 GLint okay = 0;
@@ -33,7 +28,6 @@ GLint diry = 0;
 GLint passox = -35;
 GLint passoy = 0;
 GLfloat Esfera1, Cone1, Cubo1;
-GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
 GLfloat n = 20;  //esfera cabeça
 GLfloat alpha = 0.0;
 GLfloat alpha2 = 0.0;
@@ -58,7 +52,7 @@ GLfloat xcubo=3.0;
 GLfloat ycubo=1.3;
 GLfloat zcubo=0.1;
 GLdouble p[3] = { 0,0,0 }; //esfera cabeça
-double matCoresEsfera[5][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 1.0}};
+double matCoresEsfera[5][3] = {{0.1, 0.1, 0.1}, {0.3, 0.3, 0.3}, {0.1, 0.1, 0.1}, {0.3, 0.3, 0.3}, {0.1, 0.1, 0.1}};
 GLfloat v[8][3] = { {-xcubo,-ycubo,-zcubo}, {xcubo,-ycubo,-zcubo}, //Matriz de vértices para o skate
 					{xcubo,ycubo,-zcubo}, {-xcubo,ycubo,-zcubo}, 
 					{xcubo,-ycubo,zcubo}, {-xcubo,-ycubo,zcubo}, 
@@ -208,7 +202,7 @@ void head(GLdouble *centro, GLdouble radius, GLfloat num) {
 }
 
 //Funcao chamada para desenhar um cubo que sera o shape do skate
-void cubo() {
+void shape(){
 	glEnable(GL_NORMALIZE); //Habilitando a normal
 	glBegin(GL_QUADS);
 
@@ -294,8 +288,11 @@ void cubo() {
 	glDisable(GL_NORMALIZE);
 }
 
-//Funcao chamada para desenhar um boneco Android
+/* Funcao chamada para desenhar um boneco Android
+ * Desenha os tronco, bracos, pernas, cabeca, olhos e antenas
+ * Tambem faz os movimentos dos membros*/
 void draw_Android(){
+	
 	glEnable(GL_NORMALIZE); //Habilitando a nomal
 	//PuchMatrix do Boneco
 	glPushMatrix();
@@ -357,12 +354,17 @@ void draw_Android(){
 				//glRotatef(alpha3-=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
 				
 				// if e else para mecher o braço para cima e para baixo
-				if( alphaBracoDir <= 180.0 && okayBracoDir == 0){
+				if(Pause==1){
+					glRotatef(alphaBracoDir, 1.0, 0.0, 0.0);
+				}
+				if( alphaBracoDir <= 180.0 && okayBracoDir == 0 && Pause==0){
 					glRotatef(alphaBracoDir+=1.0, 1.0, 0.0, 0.0);
 				}else{
-				  okayBracoDir=1;
-				  glRotatef(alphaBracoDir-=1.0, 1.0, 0.0, 0.0);
-				  if(alphaBracoDir <= 0.0 ) okayBracoDir=0;
+				  if(Pause==0){
+					  okayBracoDir=1;
+					  glRotatef(alphaBracoDir-=1.0, 1.0, 0.0, 0.0);
+					  if(alphaBracoDir <= 0.0 ) okayBracoDir=0;
+				  }
 				}
 				
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
@@ -402,12 +404,17 @@ void draw_Android(){
 				//glRotatef(alpha2+=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
 				
 				// if e else para mecher o braço para baixo e para cima (ao contrario da outra)
-				if( alphaBracoEsq <= 0.0 && okayBracoEsq == 0){
+				if(Pause==1){
+					glRotatef(alphaBracoEsq, 1.0, 0.0, 0.0);
+				}
+				if( alphaBracoEsq <= 0.0 && okayBracoEsq == 0 && Pause ==0){
 					glRotatef(alphaBracoEsq+=1.0, 1.0, 0.0, 0.0);
 				}else{
-				  okayBracoEsq=1;
-				  glRotatef(alphaBracoEsq-=1.0, 1.0, 0.0, 0.0);
-				  if(alphaBracoEsq <= -180.0 ) okayBracoEsq=0;
+					if(Pause==0){
+						okayBracoEsq=1;
+						glRotatef(alphaBracoEsq-=1.0, 1.0, 0.0, 0.0);
+						if(alphaBracoEsq <= -180.0 ) okayBracoEsq=0;
+					}
 				}
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 			
@@ -437,12 +444,17 @@ void draw_Android(){
 				glRotatef(-180.0, 1.0, 0.0, 0.0);
 				
 				// if e else para mecher a perna
-				if( alphaPernaEsq <= 10.0 && okayPernaEsq == 0){
+				if(Pause==1){
+					glRotatef(alphaPernaEsq, 0.0, 1.0, 0.0);
+				}
+				if( alphaPernaEsq <= 10.0 && okayPernaEsq == 0 && Pause==0){
 					glRotatef(alphaPernaEsq+=0.5, 0.0, 1.0, 0.0);
 				}else{
-				  okayPernaEsq=1;
-				  glRotatef(alphaPernaEsq-=0.5, 0.0, 1.0, 0.0);
-				  if(alphaPernaEsq <= -10.0 ) okayPernaEsq=0;
+					if(Pause==0){
+					  okayPernaEsq=1;
+					  glRotatef(alphaPernaEsq-=0.5, 0.0, 1.0, 0.0);
+					  if(alphaPernaEsq <= -10.0 ) okayPernaEsq=0;
+					 }
 				}
 				
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
@@ -472,12 +484,17 @@ void draw_Android(){
 				glRotatef(-180.0, 1.0, 0.0, 0.0);
 				
 				// if e else para mecher a perna direita
-				if( alphaPernaDir <= 10.0 && okayPernaDir == 0){
+				if(Pause==1){
+					glRotatef(alphaPernaDir, 0.0, 1.0, 0.0);
+				}
+				if( alphaPernaDir <= 10.0 && okayPernaDir == 0 && Pause==0){
 					glRotatef(alphaPernaDir+=0.5, 0.0, 1.0, 0.0);
 				}else{
-				  okayPernaDir=1;
-				  glRotatef(alphaPernaDir-=0.5, 0.0, 1.0, 0.0);
-				  if(alphaPernaDir <= -10.0 ) okayPernaDir=0;
+					if(Pause==0){
+					  okayPernaDir=1;
+					  glRotatef(alphaPernaDir-=0.5, 0.0, 1.0, 0.0);
+					  if(alphaPernaDir <= -10.0 ) okayPernaDir=0;
+					 }
 				}
 				
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
@@ -502,12 +519,17 @@ void draw_Android(){
 		glPushMatrix();
 			glTranslatef(0.0, 0.0, 5.5);
 			// if e else para mecher a cabeça para os lados
-			if( alphaHead <= 25.0 && okay2 == 0){
+			if(Pause==1){
+					glRotatef(alphaHead, 0.0, 0.0, 1.0);
+			}
+			if( alphaHead <= 25.0 && okay2 == 0 && Pause==0){
 				glRotatef(alphaHead+=1.0, 0.0, 0.0, 1.0);
 			}else{
-			  okay2=1;
-			  glRotatef(alphaHead-=1.0, 0.0, 0.0, 1.0);
-			  if(alphaHead <= -25.0 ) okay2=0;
+			   if(Pause==0){
+				  okay2=1;
+				  glRotatef(alphaHead-=1.0, 0.0, 0.0, 1.0);
+				  if(alphaHead <= -25.0 ) okay2=0;
+				}
 			}
 			head(p, 2.0, 20);
 			
@@ -579,27 +601,34 @@ void draw_Android(){
 		glPushMatrix();
 			//Shape
 			glPushMatrix();
-				glColor3f(0.1f, 0.1f, 0.1f);
+				glColor3f(0.2f, 0.2f, 0.2f);
 				//glTranslatef(0.0, 0.0, -3.4);
 				
 				// if e else para mecher o skate junto com a perna
-				if( alphaShape <= 10.0 && okayShape == 0){
+				if(Pause==1){
+						glTranslatef(alpha4, 0.0, -3.4);
+						glRotatef(alphaShape, 0.0, 1.0, 0.0);
+				}
+				if( alphaShape <= 10.0 && okayShape == 0 && Pause==0){
 					glRotatef(alphaShape+=0.5, 0.0, 1.0, 0.0);
 					glTranslatef(alpha4+=0.05, 0.0, -3.4);
 				}else{
-				  okayShape=1;
-				  glRotatef(alphaShape-=0.5, 0.0, 1.0, 0.0);
-				  glTranslatef(alpha4-=0.05, 0.0, -3.4);
-				  if(alphaShape <= -10.0 ) okayShape=0;
+					if(Pause==0){
+					  okayShape=1;
+					  glRotatef(alphaShape-=0.5, 0.0, 1.0, 0.0);
+					  glTranslatef(alpha4-=0.05, 0.0, -3.4);
+					  if(alphaShape <= -10.0 ) okayShape=0;
+					}
 				}
-				cubo();
+				shape();
 			
 				//Rodinha 1
 				glPushMatrix();
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(-2.5, 0.7, -0.5);
-					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==0) glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==1) glRotatef(alphaRodas, 1.0, 1.0, 0.0);
 					//glutSolidSphere(0.25, 50.0, 50.0);
 					rodas(p, 0.4, 20);
 				glPopMatrix();
@@ -609,7 +638,8 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(-2.5, -0.7, -0.5);
-					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==0) glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==1) glRotatef(alphaRodas, 1.0, 1.0, 0.0);
 					//glutSolidSphere(0.25, 50.0, 50.0);
 					rodas(p, 0.4, 20);
 				glPopMatrix();
@@ -619,7 +649,8 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(2.5, 0.7, -0.5);
-					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==0) glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==1) glRotatef(alphaRodas, 1.0, 1.0, 0.0);
 					//glutSolidSphere(0.25, 50.0, 50.0);
 					rodas(p, 0.4, 20);				
 				glPopMatrix();
@@ -627,22 +658,33 @@ void draw_Android(){
 				glPushMatrix();
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(2.5, -0.7, -0.5);
-					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==0) glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					if (Pause==1) glRotatef(alphaRodas, 1.0, 1.0, 0.0);
 					//glutSolidSphere(0.25, 50.0, 50.0);
 					rodas(p, 0.4, 20);			
 				glPopMatrix();
 			glPopMatrix();
 		glPopMatrix();//Termina o Skate
-
-		
 		
 	glColor3f(0.0f, 1.0f, 0.0f);
 	glPopMatrix(); //Termina o Boneco	
-	glDisable(GL_NORMALIZE);
-	
+
+	glDisable(GL_NORMALIZE);	
 }
 
-//Funcao callback chamada para fazer o desenho
+//Funcao que desenha um sol ao fundo com a segunda iluminacao
+void sol(void){
+	glPushMatrix();
+		glColor3f(255.0f, 255.0f, 0.0f);
+		glTranslatef(-20.0, 20.0, -20.0);
+		glutSolidSphere(2.0, 50.0, 50.0);
+	glPopMatrix();
+}
+	
+/*Funcao callback chamada para desenhar o quadro
+ * Faz a chamada das demais funcoes para unir e formar o desenho
+ * Faz movimentos para os lados
+ * Cria uma textura para o chão*/
 void draw(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -651,7 +693,6 @@ void draw(void) {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	//void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,  GLdouble upX,  GLdouble upY,  GLdouble upZ);
 	gluLookAt(TelaX, TelaY, TelaInit, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	//posicaoLuz[2]=TelaZ;
 	
 	//Aplicando textura em um quadrado para o chão para o boneco
 	glPushMatrix();
@@ -672,22 +713,25 @@ void draw(void) {
 	glPopMatrix();
 	//Desenhando o boneco Android
 	glPushMatrix();		
-		
-		if( alpha <= 20.0 && okay == 0){
+		if(Pause==1){
+			glTranslatef(alpha,0.0,0.0);
+			glRotatef(betha, 0.0,1.0,0.0);
+		}
+		if( alpha <= 20.0 && okay == 0 && Pause==0){
 			glTranslatef(alpha+=0.15, 0.0,0.0);
 			glRotatef(betha+=0.2, 0.0,1.0,0.0);
 		}else{
-		  okay=1;
-		  glTranslatef(alpha-=0.15, 0.0,0.0);
-		  glRotatef(betha-=0.2, 0.0,1.0,0.0);
-		  if(alpha <= -20.0 ) okay=0;
+			if(Pause==0){
+			  okay=1;	
+			  glTranslatef(alpha-=0.15, 0.0,0.0);
+			  glRotatef(betha-=0.2, 0.0,1.0,0.0);
+			  if(alpha <= -20.0 ) okay=0;
+			}
 		}
 		draw_Android();
-		
 	glPopMatrix();
 	
-	
-
+	sol();
 	// Executa os comandos OpenGL
 	glutSwapBuffers();
 	glFinish();
@@ -695,8 +739,7 @@ void draw(void) {
 
 //Funcao chamada para iterações com o teclado
 void keys(unsigned char key, int x, int y){
-	switch (key)
-	{
+	switch (key){
 	case 'w': //para cima
 		TelaY+=1;   
 		break;
@@ -721,6 +764,20 @@ void keys(unsigned char key, int x, int y){
 	case 'p': //menos zoom
 		TelaInit+=1;
 		break;
+	case 'i': //volta ao inicio
+		TelaInit = 60.0; //distancia da camera 
+		TelaX = 0.0;
+		TelaY = 0.0;  
+		TelaZ = 0.0; 
+		break;
+	case 'm':
+		Pause = 1;
+	break;
+	
+	case 'n':
+		Pause = 0;
+	break;
+	
 	}
 }
 
@@ -732,22 +789,34 @@ void redraw(int){
 
 }
 
-//Funcao dos valores inicial
+/*Funcao dos valores inicial
+ * Seta a posição da camera
+ * Cria as duas fontes de iluminacao
+ * Seta as variaveis para usar textura, carrega imagem
+ * Habilita o z-buffer */
 void init(void){
 	TelaInit = 60.0; //distancia da camera 
 	TelaX = 0.0;
 	TelaY = 0.0;  
 	TelaZ = 0.0; 
 	
-	
+	//Iluminacao 1 - padrao
 	GLfloat luzAmbiente[4] = { 0.2,0.2,0.2,1.0 };
-	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "cor"
-	GLfloat luzEspecular[4] = { 0.7,0.7,0.7, 1.0 };// "brilho"
-	//GLfloat posicaoLuz[4] = { 50.0, TelaZ, 50.0, 1.0 };
+	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "Cor Branca do vizualizador
+	GLfloat luzEspecular[4] = { 0.5,0.5,0.5, 1.0 };// "brilho"
+	GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
+	
+	//Iluminacao 2 - Sol
+	GLfloat luzAmbiente2[4] = { 0.2,0.2,0.2,1.0 };
+	GLfloat luzDifusa2[4] = { 1.0,1.0,0.0,1.0 }; // "Cor Amarelo do Sol
+	GLfloat luzEspecular2[4] = { 0.7,0.7,0.7, 1.0 };// "brilho"
+	GLfloat posicaoLuz2[4] = { -20.0, 20.0, -20.0, 1.0 };
 
 	// Capacidade de brilho do material
 	GLfloat especularidade[4] = { 1.0,1.0,1.0,1.0 };
-	GLint especMaterial = 10;
+	GLfloat especularidade2[4] = { 1.0,1.0,1.0,1.0 };
+	GLint especMaterial = 5;
+	GLint especMaterial2 = 10;
 	
 	//tem a cor de fundo
 	
@@ -756,23 +825,34 @@ void init(void){
 	
 	// Define a reflet�ncia do material
 	glMaterialfv(GL_FRONT, GL_SPECULAR, especularidade);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, especularidade2);
 	// Define a concentra��o do brilho
 	glMateriali(GL_FRONT, GL_SHININESS, especMaterial);
+	glMateriali(GL_FRONT, GL_SHININESS, especMaterial2);
 	// Ativa o uso da luz ambiente
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente2);
 
-	// Define os par�metros da luz de n�mero 0
+	// Define os par�metros da luz de n�mero 1
 	glLightfv(GL_LIGHT1, GL_AMBIENT, luzAmbiente);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, luzDifusa);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, luzEspecular);
 	glLightfv(GL_LIGHT1, GL_POSITION, posicaoLuz);
 
+	// Define os par�metros da luz de n�mero 2
+	glLightfv(GL_LIGHT2, GL_AMBIENT, luzAmbiente2);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, luzDifusa2);
+	glLightfv(GL_LIGHT2, GL_SPECULAR, luzEspecular2);
+	glLightfv(GL_LIGHT2, GL_POSITION, posicaoLuz2);
+
 	// Habilita a defini��o da cor do material a partir da cor corrente
 	glEnable(GL_COLOR_MATERIAL);
 	//Habilita o uso de ilumina��o
 	glEnable(GL_LIGHTING);
-	// Habilita a luz de n�mero 0
+	// Habilita a luz de n�mero 1
 	glEnable(GL_LIGHT1);
+	// Habilita a luz de n�mero 2
+	glEnable(GL_LIGHT2);
 	
 	//TEXTURA
 	// carrega a uma imagem
@@ -806,7 +886,9 @@ void init(void){
 	glDepthFunc(GL_LESS);
 }
 
-//Funcao reshape
+/*Especifica o tamanho da janela
+ *Inicializa o sistema de coordenadas da projecao
+ *Especifica e inicializa o sistema de coordenadas do modelo*/
 void reshape(GLsizei w, GLsizei h){
 	// Evita a divisão por zero
 	if (h == 0) h = 1;
@@ -832,7 +914,7 @@ int main(int argc, char **argv){
 	// GLUT_DEPTH para alocar Z-buffer
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1000, 600);
-	//glutInitWindowPosition(50, 50);
+	glutInitWindowPosition(100, 50);
 	glutCreateWindow("Trabalho 1 - Boneco Android");
 	init();
 	glutKeyboardFunc(keys);

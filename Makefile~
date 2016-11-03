@@ -1,0 +1,47 @@
+all: janela quadrado esfera normal cone fonts array visualiza gasket aproximaesfera visualizandocubo luz cubo_esfera cubo_esfera_torus
+
+janela: janela.cpp
+	g++ janela.cpp -lGL -lGLU -lglut -o janela
+
+quadrado: quadrado.cpp
+	g++ quadrado.cpp -lGL -lGLU -lglut -o quadrado
+
+esfera: esfera.cpp
+	g++ esfera.cpp -lGL -lGLU -lglut -o esfera
+
+normal: normal.cpp
+	g++ normal.cpp -lGL -lGLU -lglut -o normal
+
+cone: cone.cpp
+	g++ cone.cpp -lGL -lGLU -lglut -o cone
+
+fonts: fonts.cpp
+	g++ fonts.cpp -lGL -lGLU -lglut -o fonts
+
+array: array.cpp
+	g++ array.cpp -lGL -lGLU -lglut -o array
+
+visualiza: visualiza.cpp
+	g++ visualiza.cpp -lGL -lGLU -lglut -o visualiza
+
+gasket: gasket.cpp
+	g++ gasket.cpp -lGL -lGLU -lglut -o gasket
+
+aproximaesfera: aproximaesfera.cpp
+	g++ aproximaesfera.cpp -lGL -lGLU -lglut -o aproximaesfera
+
+visualizandocubo: visualizandocubo.cpp
+	g++ visualizandocubo.cpp -lGL -lGLU -lglut -o visualizandocubo
+
+luz: luz.cpp
+	g++ luz.cpp -lGL -lGLU -lglut -o luz
+
+cubo_esfera: cubo_esfera.cpp
+	g++ cubo_esfera.cpp -lGL -lGLU -lglut -o cubo_esfera
+
+cubo_esfera_torus: cubo_esfera_torus.cpp
+	g++ cubo_esfera_torus.cpp -lGL -lGLU -lglut -o cubo_esfera_torus
+
+
+clean:
+	rm janela esfera quadrado normal cone fonts cubo visualiza gasket aproximaesfera  visualizandocubo luz cubo_esfera cubo_esfera_torus
