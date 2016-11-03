@@ -14,12 +14,16 @@ GLint dir = 0;
 GLint passo = 0;
 GLint okay = 0;
 GLint okay2= 0;  
-
+GLint okayShape= 0;  
+GLint okayBracoDir= 0;  
+GLint okayBracoEsq= 0;  
+GLint okayPernaDir= 0;  
+GLint okayPernaEsq= 0;  
 GLint dirx = 0;
 GLint diry = 0;
 GLint passox = -35;
 GLint passoy = 0;
-GLfloat Tela, Esfera1, Cone1, Cubo1;
+GLfloat Esfera1, Cone1, Cubo1;
 GLfloat posicaoLuz[4] = { 0.0, 50.0, 50.0, 1.0 };
 GLfloat n = 20;  //esfera cabeça
 GLfloat alpha = 0.0;
@@ -27,6 +31,13 @@ GLfloat alpha2 = 0.0;
 GLfloat alpha3 = 0.0;
 GLfloat alphaRodas = 0.0;
 GLfloat alphaHead = 0.0;
+GLfloat alphaShape = 0.0;
+GLfloat alpha4 = 0.0;
+GLfloat alphaBracoDir = 0.0;
+GLfloat alphaBracoEsq = 0.0;
+GLfloat alphaPernaDir = 0.0;
+GLfloat alphaPernaEsq = 0.0;
+GLfloat TelaX, TelaY, TelaZ, TelaInit;
 
 
 GLfloat betha = 0.0;
@@ -39,16 +50,87 @@ GLfloat radius=0.0;
 GLfloat height=0.0;
 GLfloat xcubo=3.0;
 GLfloat ycubo=1.3;
-GLfloat zcubo=0.2;
+GLfloat zcubo=0.1;
 GLdouble p[3] = { 0,0,0 }; //esfera cabeça
+double matCoresEsfera[5][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 1.0}};
 GLfloat v[8][3] = { {-xcubo,-ycubo,-zcubo}, {xcubo,-ycubo,-zcubo}, //Matriz de vértices para o skate
 					{xcubo,ycubo,-zcubo}, {-xcubo,ycubo,-zcubo}, 
 					{xcubo,-ycubo,zcubo}, {-xcubo,-ycubo,zcubo}, 
 					{-xcubo,ycubo,zcubo}, {xcubo,ycubo,zcubo}};
 
+//Funcao chamada para desenhar esfera colorida para as rodas, para exibir a roda rotacionando
+void rodas(GLdouble *centro, GLdouble radius, GLfloat num) {
+	glEnable(GL_NORMALIZE); //Habilitando a nomal
+	GLdouble c, c2, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+	GLdouble phi, theta, phi1, theta1, phi2, theta2;
+	GLdouble senphi1, cosphi1, senphi2, cosphi2,
+	         sentheta1, costheta1, sentheta2, costheta2,
+	         passo;
+	glNormal3d(centro[0], centro[1] + radius, centro[2]);
+	glVertex3d(centro[0], centro[1] + radius, centro[2]);
+	c = pi / 180;
+	passo = 180 / num * c;
+	glBegin(GL_TRIANGLES);
+	phi1 = 0;
+	senphi1 = sin(phi1);
+	cosphi1 = cos(phi1);
+	int i,j,k;
+	for (i=0; i < num; i++) {
+		phi2 = phi1 + passo;
+		senphi2 = sin(phi2);
+		cosphi2 = cos(phi2);
+		theta1 = 0;
+		sentheta1 = sin(theta1);
+		costheta1 = cos(theta1);
+		k = 0;
+		for (j = 0; j < 2 * num; j++) {
+			if (j % 8 == 0) {
+				glColor3f(matCoresEsfera[k][0], matCoresEsfera[k][1], matCoresEsfera[k][2]);
+				k++;
+			}
+			theta2 = theta1 + passo;
+			sentheta2 = sin(theta2);
+			costheta2 = cos(theta2);
+			x1 = centro[0] + radius * senphi1 * costheta1;
+			y1 = centro[1] + radius * senphi1 * sentheta1;
+			z1 = centro[2] + radius * cosphi1;
+			glNormal3d(x1, y1, z1);
+			glVertex3d(x1, y1, z1);
+			x2 = centro[0] + radius * senphi2 * costheta1;
+			y2 = centro[1] + radius * senphi2 * sentheta1;
+			z2 = centro[2] + radius * cosphi2;
+			glNormal3d(x2, y2, z2);
+			glVertex3d(x2, y2, z2);
+			x3 = centro[0] + radius * senphi2 * costheta2;
+			y3 = centro[1] + radius * senphi2 * sentheta2;
+			z3 = centro[2] + radius * cosphi2;
+			glNormal3d(x3, y3, z3);
+			glVertex3d(x3, y3, z3);
+			
+			glNormal3d(x1, y1, z1);
+			glVertex3d(x1, y1, z1);
+			
+			glNormal3d(x3, y3, z3);
+			glVertex3d(x3, y3, z3);
+			x4 = centro[0] + radius * senphi1 * costheta2;
+			y4 = centro[1] + radius * senphi1 * sentheta2;
+			z4 = centro[2] + radius * cosphi1;
+			glNormal3d(x4, y4, z4);
+			glVertex3d(x4, y4, z4);
+			theta1 = theta2;
+			sentheta1 = sentheta2;
+			costheta1 = costheta2;
+		}
+		phi1 = phi2;
+		senphi1 = senphi2;
+		cosphi1 = cosphi2;
+	}
+	glEnd();
+	glDisable(GL_NORMALIZE);
+}
 
 //Funcao chamada para desenhar meia esfera, para a cabeca do boneco
-void esfera(GLdouble *centro, GLdouble radius, GLfloat num) {
+void head(GLdouble *centro, GLdouble radius, GLfloat num) {
 	glEnable(GL_NORMALIZE); //Habilitando a nomal
 	GLdouble c, c2, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
 	GLdouble phi, theta, phi1, theta1, phi2, theta2;
@@ -205,7 +287,7 @@ void cubo() {
 
 //Funcao chamada para desenhar um boneco Android
 void draw_Android(){
-	
+	glEnable(GL_NORMALIZE); //Habilitando a nomal
 	//PuchMatrix do Boneco
 	glPushMatrix();
 
@@ -225,9 +307,11 @@ void draw_Android(){
 				while( angle < 2*pi ) {
 					x = radius * cos(angle);
 					y = radius * sin(angle);
+					glNormal3f(x, y , height);
 					glVertex3f(x, y , height);//A posição da tampa
 					angle = angle + angle_stepsize;
 				}
+				glNormal3f(radius, 0.0, height);
 				glVertex3f(radius, 0.0, height);
 			glEnd();
 		glPopMatrix();
@@ -261,7 +345,17 @@ void draw_Android(){
 			glPushMatrix();
 				glColor3f(0.0f, 1.0f, 0.0f);
 				glTranslatef(2.5, 0.0, 4.0); 
-				glRotatef(alpha3-=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
+				//glRotatef(alpha3-=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
+				
+				// if e else para mecher o braço para cima e para baixo
+				if( alphaBracoDir <= 180.0 && okayBracoDir == 0){
+					glRotatef(alphaBracoDir+=1.0, 1.0, 0.0, 0.0);
+				}else{
+				  okayBracoDir=1;
+				  glRotatef(alphaBracoDir-=1.0, 1.0, 0.0, 0.0);
+				  if(alphaBracoDir <= 0.0 ) okayBracoDir=0;
+				}
+				
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 
 				//Esfera de cima
@@ -295,8 +389,17 @@ void draw_Android(){
 				glColor3f(0.0f, 1.0f, 0.0f);
 				glTranslatef(-2.5, 0.0, 4.0); 
 				
-				glRotatef(-180, -1.0, 0.0, 0.0);		//Faz o movimento do braço
-				glRotatef(alpha2+=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
+				glRotatef(-180, -1.0, 0.0, 0.0);		//Rotaciona primeiro para movimentar ao contrário
+				//glRotatef(alpha2+=1.0, -1.0, 0.0, 0.0);		//Faz o movimento do braço
+				
+				// if e else para mecher o braço para baixo e para cima (ao contrario da outra)
+				if( alphaBracoEsq <= 0.0 && okayBracoEsq == 0){
+					glRotatef(alphaBracoEsq+=1.0, 1.0, 0.0, 0.0);
+				}else{
+				  okayBracoEsq=1;
+				  glRotatef(alphaBracoEsq-=1.0, 1.0, 0.0, 0.0);
+				  if(alphaBracoEsq <= -180.0 ) okayBracoEsq=0;
+				}
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 			
 		
@@ -321,8 +424,18 @@ void draw_Android(){
 			//Cilindro da perna
 			glPushMatrix();
 				glColor3f(0.0f, 1.0f, 0.0f);
-				glTranslatef(-0.7, -0.5, -0.5); 
+				glTranslatef(-0.7, 0.0, -0.5); 
 				glRotatef(-180.0, 1.0, 0.0, 0.0);
+				
+				// if e else para mecher a perna
+				if( alphaPernaEsq <= 10.0 && okayPernaEsq == 0){
+					glRotatef(alphaPernaEsq+=0.5, 0.0, 1.0, 0.0);
+				}else{
+				  okayPernaEsq=1;
+				  glRotatef(alphaPernaEsq-=0.5, 0.0, 1.0, 0.0);
+				  if(alphaPernaEsq <= -10.0 ) okayPernaEsq=0;
+				}
+				
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 			
 				//Esfera de cima
@@ -346,8 +459,18 @@ void draw_Android(){
 			//Cilindro da perna
 			glPushMatrix();
 				glColor3f(0.0f, 1.0f, 0.0f);
-				glTranslatef(0.7, -0.5, -0.5); 
+				glTranslatef(0.7, 0.0, -0.5); 
 				glRotatef(-180.0, 1.0, 0.0, 0.0);
+				
+				// if e else para mecher a perna direita
+				if( alphaPernaDir <= 10.0 && okayPernaDir == 0){
+					glRotatef(alphaPernaDir+=0.5, 0.0, 1.0, 0.0);
+				}else{
+				  okayPernaDir=1;
+				  glRotatef(alphaPernaDir-=0.5, 0.0, 1.0, 0.0);
+				  if(alphaPernaDir <= -10.0 ) okayPernaDir=0;
+				}
+				
 				gluCylinder(obj, 0.4, 0.4, 2.5, 50, 50);
 			
 				//Esfera de cima
@@ -369,16 +492,32 @@ void draw_Android(){
 		//Desenhar cabeça
 		glPushMatrix();
 			glTranslatef(0.0, 0.0, 5.5);
-			//glRotatef(alphaHead+=1.5, 0.0, 0.0, 1.0);
-		
-		esfera(p, 2.0, 20);	
-		if( alphaHead <= 10.0 && okay2 == 0){
-			glRotatef(alphaHead+=0.5, 0.0, 0.0, 1.0);
-		}else{
-		  okay2=1;
-		  glRotatef(alphaHead-=0.5, 0.0, 0.0, 1.0);
-		  if(alphaHead <= -10.0 ) okay2=0;
-		}
+			// if e else para mecher a cabeça para os lados
+			if( alphaHead <= 25.0 && okay2 == 0){
+				glRotatef(alphaHead+=0.5, 0.0, 0.0, 1.0);
+			}else{
+			  okay2=1;
+			  glRotatef(alphaHead-=0.5, 0.0, 0.0, 1.0);
+			  if(alphaHead <= -25.0 ) okay2=0;
+			}
+			head(p, 2.0, 20);
+			
+			//Fechar a base da esfera da cabeça
+			glPushMatrix();
+				glBegin(GL_POLYGON);
+					glColor3f(0.0f, 1.0f, 0.0f);
+					radius=2.0;
+					height=5.0;
+					angle = 0.0;
+					while( angle < 2*pi ) {
+						x = radius * cos(angle);
+						y = radius * sin(angle);
+						glVertex3f(x, y , 0.0);//A posição da tampa
+						angle = angle + angle_stepsize;
+					}
+				glEnd();
+			glPopMatrix();
+			
 			//Desenhando o olho esquerdo
 			glPushMatrix();
 				glColor3f(1.0f, 1.0f, 1.0f);
@@ -426,12 +565,24 @@ void draw_Android(){
 			glPopMatrix();
 		 glPopMatrix();
 		glPopMatrix();
+		
 		//Desenhando o Skate
 		glPushMatrix();
 			//Shape
 			glPushMatrix();
 				glColor3f(0.1f, 0.1f, 0.1f);
-				glTranslatef(0.0, 0.0, -3.4);
+				//glTranslatef(0.0, 0.0, -3.4);
+				
+				// if e else para mecher o skate junto com a perna
+				if( alphaShape <= 10.0 && okayShape == 0){
+					glRotatef(alphaShape+=0.5, 0.0, 1.0, 0.0);
+					glTranslatef(alpha4+=0.05, 0.0, -3.4);
+				}else{
+				  okayShape=1;
+				  glRotatef(alphaShape-=0.5, 0.0, 1.0, 0.0);
+				  glTranslatef(alpha4-=0.05, 0.0, -3.4);
+				  if(alphaShape <= -10.0 ) okayShape=0;
+				}
 				cubo();
 			
 				//Rodinha 1
@@ -439,8 +590,9 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(-2.5, 0.7, -0.5);
-					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
-					glutSolidSphere(0.25, 50.0, 50.0);
+					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					//glutSolidSphere(0.25, 50.0, 50.0);
+					rodas(p, 0.4, 20);
 				glPopMatrix();
 				
 				//Rodinha 2
@@ -448,8 +600,9 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(-2.5, -0.7, -0.5);
-					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
-					glutSolidSphere(0.25, 50.0, 50.0);
+					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					//glutSolidSphere(0.25, 50.0, 50.0);
+					rodas(p, 0.4, 20);
 				glPopMatrix();
 				
 				//Rodinha 3
@@ -457,27 +610,26 @@ void draw_Android(){
 					//glColor3f(0.1f, 0.1f, 0.1f);
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(2.5, 0.7, -0.5);
-					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
-					glutSolidSphere(0.25, 50.0, 50.0);				
+					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					//glutSolidSphere(0.25, 50.0, 50.0);
+					rodas(p, 0.4, 20);				
 				glPopMatrix();
-				
 				//Rodinha 4
 				glPushMatrix();
 					glColor3f(1.0f, 0.1f, 0.1f);
 					glTranslatef(2.5, -0.7, -0.5);
-					glRotatef(alphaRodas+=10.0, 1.0, 0.0, 0.0);
-					glutSolidSphere(0.25, 50.0, 50.0);			
+					glRotatef(alphaRodas+=0.5, 1.0, 1.0, 0.0);
+					//glutSolidSphere(0.25, 50.0, 50.0);
+					rodas(p, 0.4, 20);			
 				glPopMatrix();
 			glPopMatrix();
-			
-			
 		glPopMatrix();//Termina o Skate
 
 		
 		
 	glColor3f(0.0f, 1.0f, 0.0f);
 	glPopMatrix(); //Termina o Boneco	
-	
+	glDisable(GL_NORMALIZE);
 	
 }
 
@@ -488,9 +640,9 @@ void draw(void) {
 
 	// Limpa a janela de visualização com cor de fundo especificada
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	
-	gluLookAt(0.0, 0.0, Tela, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	//posicaoLuz[2]=Tela;
+	//void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,  GLdouble upX,  GLdouble upY,  GLdouble upZ);
+	gluLookAt(TelaX, TelaY, TelaInit, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	//posicaoLuz[2]=TelaZ;
 	
 	
 	//Desenhando o boneco Android
@@ -516,6 +668,37 @@ void draw(void) {
 	glFinish();
 }
 
+void keys(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'w':
+		TelaY+=1;   
+		break;
+	case 's':
+		TelaY-=1;  
+		break;
+	case 'a':
+		TelaX-=1;
+		break;
+	case 'd':
+		TelaX+=1;
+		break;
+	case 'q':
+		TelaZ-=1;
+		break;
+	case 'e':
+		TelaZ+=1;
+		break;
+	case 'o':
+		TelaInit-=1;
+		break;
+	case 'p':
+		TelaInit+=1;
+		break;
+	}
+}
+
 void redraw(int)
 {
     glutPostRedisplay();
@@ -525,13 +708,16 @@ void redraw(int)
 }
 
 void init(void) {
-	Esfera1 = 0;  
-	Tela = 30; //distancia da camera 
+	TelaInit = 30.0; //distancia da camera 
+	TelaX = 0.0;
+	TelaY = 0.0;  
+	TelaZ = 0.0; 
+	
 	
 	GLfloat luzAmbiente[4] = { 0.2,0.2,0.2,1.0 };
 	GLfloat luzDifusa[4] = { 0.5,0.5,0.5,1.0 };	   // "cor"
 	GLfloat luzEspecular[4] = { 0.7,0.7,0.7, 1.0 };// "brilho"
-	//GLfloat posicaoLuz[4] = { 50.0, Tela, 50.0, 1.0 };
+	//GLfloat posicaoLuz[4] = { 50.0, TelaZ, 50.0, 1.0 };
 
 	// Capacidade de brilho do material
 	GLfloat especularidade[4] = { 1.0,1.0,1.0,1.0 };
@@ -598,6 +784,7 @@ int main(int argc, char **argv) {
 	//glutInitWindowPosition(50, 50);
 	glutCreateWindow("Trabalho 1 - Boneco Android");
 	init();
+	glutKeyboardFunc(keys);
 	glutTimerFunc(40,redraw,1);
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
