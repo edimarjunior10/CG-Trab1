@@ -1,12 +1,21 @@
 /* Universidade Federal da Fronteira Sul - UFFS
  * Disciplina de Computação Gráfica - 2016/02
  * Professor	José Carlos Bins
- * Alunos 	Edimar Roque Martello Júnior - 1111100038
- *			Edirlan José Censi - 1211100030
+ * Alunos 	Edimar Roque Martello Júnior - 1111100038 - Noturno
+ *			Edirlan José Censi - 1211100030 - Matutino
 */
 #include <stdio.h>
 #include <GL/glut.h>
 #include <math.h>
+#include "BCommandLine.h"
+
+#define MAXTEXTURES 1
+#define MAP_DEFAULT 2
+#define MAP_AUTO 1
+#define MAP_MANUAL 2
+#define OBJ_DEFAULT 2
+#define OBJ_ESFERA 1
+#define OBJ_CUBO 2
 
 const double pi = 3.1415927;
 GLUquadricObj *obj = gluNewQuadric();
@@ -38,10 +47,7 @@ GLfloat alphaBracoEsq = 0.0;
 GLfloat alphaPernaDir = 0.0;
 GLfloat alphaPernaEsq = 0.0;
 GLfloat TelaX, TelaY, TelaZ, TelaInit;
-
-
 GLfloat betha = 0.0;
-
 GLfloat x=0.0;
 GLfloat y=0.0;
 GLfloat angle=0.0;
@@ -57,6 +63,9 @@ GLfloat v[8][3] = { {-xcubo,-ycubo,-zcubo}, {xcubo,-ycubo,-zcubo}, //Matriz de v
 					{xcubo,ycubo,-zcubo}, {-xcubo,ycubo,-zcubo}, 
 					{xcubo,-ycubo,zcubo}, {-xcubo,-ycubo,zcubo}, 
 					{-xcubo,ycubo,zcubo}, {xcubo,ycubo,zcubo}};
+
+//Funcao chamada para carregar imagem para textura
+unsigned char *  loadBMP_custom(const char *, unsigned int&, unsigned int&);
 
 //Funcao chamada para desenhar esfera colorida para as rodas, para exibir a roda rotacionando
 void rodas(GLdouble *centro, GLdouble radius, GLfloat num) {
@@ -494,10 +503,10 @@ void draw_Android(){
 			glTranslatef(0.0, 0.0, 5.5);
 			// if e else para mecher a cabeça para os lados
 			if( alphaHead <= 25.0 && okay2 == 0){
-				glRotatef(alphaHead+=0.5, 0.0, 0.0, 1.0);
+				glRotatef(alphaHead+=1.0, 0.0, 0.0, 1.0);
 			}else{
 			  okay2=1;
-			  glRotatef(alphaHead-=0.5, 0.0, 0.0, 1.0);
+			  glRotatef(alphaHead-=1.0, 0.0, 0.0, 1.0);
 			  if(alphaHead <= -25.0 ) okay2=0;
 			}
 			head(p, 2.0, 20);
@@ -633,7 +642,7 @@ void draw_Android(){
 	
 }
 
-// Funcao callback chamada para fazer o desenho
+//Funcao callback chamada para fazer o desenho
 void draw(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -644,18 +653,34 @@ void draw(void) {
 	gluLookAt(TelaX, TelaY, TelaInit, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	//posicaoLuz[2]=TelaZ;
 	
-	
+	//Aplicando textura em um quadrado para o chão para o boneco
+	glPushMatrix();
+		glTranslatef(0.0, -7.7, 0.0);
+		glRotatef(-80, 1.0,0.0,0.0);
+		glEnable(GL_TEXTURE_2D);
+			glBegin(GL_QUADS);
+			glTexCoord2f(-50,50);
+			glVertex2i(-50,50);
+			glTexCoord2f(-50,-50);
+			glVertex2i(-50,-50);
+			glTexCoord2f(50,-50);
+			glVertex2i(50,-50);
+			glTexCoord2f(50,50);
+			glVertex2i(50,50);
+			glEnd();
+		glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
 	//Desenhando o boneco Android
 	glPushMatrix();		
 		
-		if( alpha <= 10.0 && okay == 0){
+		if( alpha <= 20.0 && okay == 0){
 			glTranslatef(alpha+=0.15, 0.0,0.0);
 			glRotatef(betha+=0.2, 0.0,1.0,0.0);
 		}else{
 		  okay=1;
 		  glTranslatef(alpha-=0.15, 0.0,0.0);
 		  glRotatef(betha-=0.2, 0.0,1.0,0.0);
-		  if(alpha <= -10.0 ) okay=0;
+		  if(alpha <= -20.0 ) okay=0;
 		}
 		draw_Android();
 		
@@ -668,47 +693,48 @@ void draw(void) {
 	glFinish();
 }
 
-void keys(unsigned char key, int x, int y)
-{
+//Funcao chamada para iterações com o teclado
+void keys(unsigned char key, int x, int y){
 	switch (key)
 	{
-	case 'w':
+	case 'w': //para cima
 		TelaY+=1;   
 		break;
-	case 's':
+	case 's': //para baixo
 		TelaY-=1;  
 		break;
-	case 'a':
+	case 'a': //para esquerda
 		TelaX-=1;
 		break;
-	case 'd':
+	case 'd': //para direita
 		TelaX+=1;
 		break;
-	case 'q':
+	case 'q': // menos profundidade
 		TelaZ-=1;
 		break;
-	case 'e':
+	case 'e': // menos profundidade
 		TelaZ+=1;
 		break;
-	case 'o':
+	case 'o': //mais zoom
 		TelaInit-=1;
 		break;
-	case 'p':
+	case 'p': //menos zoom
 		TelaInit+=1;
 		break;
 	}
 }
 
-void redraw(int)
-{
+//Funcao chamada para redesenhar e tambem para delay
+void redraw(int){
     glutPostRedisplay();
     draw();
     glutTimerFunc(40,redraw,1);
 
 }
 
-void init(void) {
-	TelaInit = 30.0; //distancia da camera 
+//Funcao dos valores inicial
+void init(void){
+	TelaInit = 60.0; //distancia da camera 
 	TelaX = 0.0;
 	TelaY = 0.0;  
 	TelaZ = 0.0; 
@@ -748,6 +774,29 @@ void init(void) {
 	// Habilita a luz de n�mero 0
 	glEnable(GL_LIGHT1);
 	
+	//TEXTURA
+	// carrega a uma imagem
+	unsigned int ih=0, iw=0;
+	unsigned char * texture = NULL;
+	texture = loadBMP_custom("asfalto1.bmp", iw, ih);
+	glShadeModel(GL_SMOOTH);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	GLuint texnum[MAXTEXTURES];
+	// Define a textura corrente
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, texnum);
+	glBindTexture(GL_TEXTURE_2D, texnum[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, iw, ih, 0,
+		GL_RGB, GL_UNSIGNED_BYTE, texture);
+	gluBuild2DMipmaps(texnum[0], GL_RGB, iw, ih, GL_RGB, GL_UNSIGNED_BYTE, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	delete texture;
+	glEnable(GL_TEXTURE_2D);
 
 	// Define a cor de fundo da janela de visualização como preta
 	glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
@@ -757,7 +806,8 @@ void init(void) {
 	glDepthFunc(GL_LESS);
 }
 
-void reshape(GLsizei w, GLsizei h) {
+//Funcao reshape
+void reshape(GLsizei w, GLsizei h){
 	// Evita a divisão por zero
 	if (h == 0) h = 1;
 	// Especifica as dimensões da Viewport
@@ -776,7 +826,8 @@ void reshape(GLsizei w, GLsizei h) {
 	glLoadIdentity();	
 }
 
-int main(int argc, char **argv) {
+// Funcao main(principal)
+int main(int argc, char **argv){
 	glutInit(&argc, argv);
 	// GLUT_DEPTH para alocar Z-buffer
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
